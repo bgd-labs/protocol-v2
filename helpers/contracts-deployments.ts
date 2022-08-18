@@ -230,7 +230,8 @@ export const deployAaveLibraries = async (
   const validationLogic = await deployValidationLogic(reserveLogic, genericLogic, verify);
 
   // Hardcoded solidity placeholders, if any library changes path this will fail.
-  // The '__$PLACEHOLDER$__ can be calculated via solidity keccak, but the LendingPoolLibraryAddresses Type seems to
+  // The '__$PLACEHOLDER$__ can be calculated via solidity keccak,
+  // but the LendingPoolLibraryAddresses Type seems to
   // require a hardcoded string.
   //
   //  how-to:
@@ -364,7 +365,7 @@ export const deployMintableDelegationERC20 = async (
     verify
   );
 export const deployDefaultReserveInterestRateStrategy = async (
-  args: [tEthereumAddress, string, string, string, string, string, string],
+  args: [tEthereumAddress, string, string, string, string, string, string, string, string, string],
   verify: boolean
 ) =>
   withSaveAndVerify(
@@ -752,7 +753,7 @@ export const deployATokenImplementations = async (
 
 export const deployRateStrategy = async (
   strategyName: string,
-  args: [tEthereumAddress, string, string, string, string, string, string],
+  args: [tEthereumAddress, string, string, string, string, string, string, string, string, string],
   verify: boolean
 ): Promise<tEthereumAddress> => {
   switch (strategyName) {

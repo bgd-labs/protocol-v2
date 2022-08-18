@@ -187,6 +187,7 @@ library ReserveLogic {
     uint256 newVariableRate;
     uint256 avgStableRate;
     uint256 totalVariableDebt;
+    uint256 reserveFactor;
   }
 
   /**
@@ -216,11 +217,14 @@ library ReserveLogic {
       .scaledTotalSupply()
       .rayMul(reserve.variableBorrowIndex);
 
+    vars.reserveFactor = reserve.configuration.getReserveFactor();
+
     (
       vars.newLiquidityRate,
       vars.newStableRate,
       vars.newVariableRate
     ) = IReserveInterestRateStrategy(reserve.interestRateStrategyAddress).calculateInterestRates(
+      0,
       reserveAddress,
       aTokenAddress,
       liquidityAdded,
@@ -228,7 +232,7 @@ library ReserveLogic {
       vars.totalStableDebt,
       vars.totalVariableDebt,
       vars.avgStableRate,
-      reserve.configuration.getReserveFactor()
+      vars.reserveFactor
     );
     require(vars.newLiquidityRate <= type(uint128).max, Errors.RL_LIQUIDITY_RATE_OVERFLOW);
     require(vars.newStableRate <= type(uint128).max, Errors.RL_STABLE_BORROW_RATE_OVERFLOW);

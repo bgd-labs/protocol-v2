@@ -39,21 +39,21 @@ contract UiPoolDataProviderV2V3 is IUiPoolDataProviderV3 {
     marketReferenceCurrencyPriceInUsdProxyAggregator = _marketReferenceCurrencyPriceInUsdProxyAggregator;
   }
 
-  function getInterestRateStrategySlopes(DefaultReserveInterestRateStrategy interestRateStrategy, ILendingPoolAddressesProvider provider, address reserve)
-    internal
-    view
-    returns(InterestRates memory)
-  {
+  function getInterestRateStrategySlopes(
+    DefaultReserveInterestRateStrategy interestRateStrategy,
+    ILendingPoolAddressesProvider provider,
+    address reserve
+  ) internal view returns (InterestRates memory) {
     InterestRates memory interestRates;
-    interestRates.variableRateSlope1 = interestRateStrategy.variableRateSlope1();
-    interestRates.variableRateSlope2 = interestRateStrategy.variableRateSlope2();
-    interestRates.stableRateSlope1 = interestRateStrategy.stableRateSlope1();
-    interestRates.stableRateSlope2 = interestRateStrategy.stableRateSlope2();
-    interestRates.baseVariableBorrowRate = interestRateStrategy.baseVariableBorrowRate();
-    interestRates.optimalUsageRatio = interestRateStrategy.OPTIMAL_UTILIZATION_RATE();
+    interestRates.variableRateSlope1 = interestRateStrategy.getVariableRateSlope1();
+    interestRates.variableRateSlope2 = interestRateStrategy.getVariableRateSlope2();
+    interestRates.stableRateSlope1 = interestRateStrategy.getStableRateSlope1();
+    interestRates.stableRateSlope2 = interestRateStrategy.getStableRateSlope2();
+    interestRates.baseVariableBorrowRate = interestRateStrategy.getBaseVariableBorrowRate();
+    interestRates.optimalUsageRatio = interestRateStrategy.OPTIMAL_USAGE_RATIO();
 
     interestRates.baseStableBorrowRate = ILendingRateOracle(provider.getLendingRateOracle())
-          .getMarketBorrowRate(reserve);
+      .getMarketBorrowRate(reserve);
 
     return interestRates;
   }
@@ -137,10 +137,13 @@ contract UiPoolDataProviderV2V3 is IUiPoolDataProviderV3 {
         reserveData.stableBorrowRateEnabled
       ) = baseData.configuration.getFlagsMemory();
       reserveData.usageAsCollateralEnabled = reserveData.baseLTVasCollateral != 0;
-      
-      InterestRates memory interestRates = getInterestRateStrategySlopes(
-        DefaultReserveInterestRateStrategy(reserveData.interestRateStrategyAddress), provider, reserveData.underlyingAsset
-      );
+
+      InterestRates memory interestRates =
+        getInterestRateStrategySlopes(
+          DefaultReserveInterestRateStrategy(reserveData.interestRateStrategyAddress),
+          provider,
+          reserveData.underlyingAsset
+        );
 
       reserveData.variableRateSlope1 = interestRates.variableRateSlope1;
       reserveData.variableRateSlope2 = interestRates.variableRateSlope2;

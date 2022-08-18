@@ -22,7 +22,7 @@ contract ATokensAndRatesHelper is Ownable {
 
   struct InitDeploymentInput {
     address asset;
-    uint256[6] rates;
+    uint256[9] rates;
   }
 
   struct ConfigureReserveInput {
@@ -57,7 +57,10 @@ contract ATokensAndRatesHelper is Ownable {
             inputParams[i].rates[2],
             inputParams[i].rates[3],
             inputParams[i].rates[4],
-            inputParams[i].rates[5]
+            inputParams[i].rates[5],
+            inputParams[i].rates[6],
+            inputParams[i].rates[7],
+            inputParams[i].rates[8]
           )
         )
       );
