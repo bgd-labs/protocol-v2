@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.6.12;
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.8.0;
 
 import {BaseParaSwapSellAdapter} from './BaseParaSwapSellAdapter.sol';
 import {ILendingPoolAddressesProvider} from '../interfaces/ILendingPoolAddressesProvider.sol';
@@ -9,6 +8,8 @@ import {IERC20Detailed} from '../dependencies/openzeppelin/contracts/IERC20Detai
 import {IERC20WithPermit} from '../interfaces/IERC20WithPermit.sol';
 import {IParaSwapAugustus} from '../interfaces/IParaSwapAugustus.sol';
 import {ReentrancyGuard} from '../dependencies/openzeppelin/contracts/ReentrancyGuard.sol';
+import {SafeMath} from '../dependencies/openzeppelin/contracts/SafeMath.sol';
+import {SafeERC20} from '../dependencies/openzeppelin/contracts/SafeERC20.sol';
 
 /**
  * @title ParaSwapLiquiditySwapAdapter
@@ -16,10 +17,13 @@ import {ReentrancyGuard} from '../dependencies/openzeppelin/contracts/Reentrancy
  * @author Jason Raymond Bell
  */
 contract ParaSwapLiquiditySwapAdapter is BaseParaSwapSellAdapter, ReentrancyGuard {
+  using SafeMath for uint256;
+  using SafeERC20 for IERC20Detailed;
+
   constructor(
     ILendingPoolAddressesProvider addressesProvider,
     IParaSwapAugustusRegistry augustusRegistry
-  ) public BaseParaSwapSellAdapter(addressesProvider, augustusRegistry) {
+  ) BaseParaSwapSellAdapter(addressesProvider, augustusRegistry) {
     // This is only required to initialize BaseParaSwapSellAdapter
   }
 
@@ -63,14 +67,11 @@ contract ParaSwapLiquiditySwapAdapter is BaseParaSwapSellAdapter, ReentrancyGuar
       bytes memory swapCalldata,
       IParaSwapAugustus augustus,
       PermitSignature memory permitParams
-    ) = abi.decode(params, (
-      IERC20Detailed,
-      uint256,
-      uint256,
-      bytes,
-      IParaSwapAugustus,
-      PermitSignature
-    ));
+    ) =
+      abi.decode(
+        params,
+        (IERC20Detailed, uint256, uint256, bytes, IParaSwapAugustus, PermitSignature)
+      );
 
     _swapLiquidity(
       swapAllBalanceOffset,
@@ -128,15 +129,16 @@ contract ParaSwapLiquiditySwapAdapter is BaseParaSwapSellAdapter, ReentrancyGuar
       permitParams
     );
 
-    uint256 amountReceived = _sellOnParaSwap(
-      swapAllBalanceOffset,
-      swapCalldata,
-      augustus,
-      assetToSwapFrom,
-      assetToSwapTo,
-      amountToSwap,
-      minAmountToReceive
-    );
+    uint256 amountReceived =
+      _sellOnParaSwap(
+        swapAllBalanceOffset,
+        swapCalldata,
+        augustus,
+        assetToSwapFrom,
+        assetToSwapTo,
+        amountToSwap,
+        minAmountToReceive
+      );
 
     assetToSwapTo.safeApprove(address(LENDING_POOL), 0);
     assetToSwapTo.safeApprove(address(LENDING_POOL), amountReceived);
@@ -156,7 +158,7 @@ contract ParaSwapLiquiditySwapAdapter is BaseParaSwapSellAdapter, ReentrancyGuar
    * @param assetToSwapTo Address of the underlying asset to be swapped to and deposited
    * @param minAmountToReceive Min amount to be received from the swap
    */
-  function _swapLiquidity (
+  function _swapLiquidity(
     uint256 swapAllBalanceOffset,
     bytes memory swapCalldata,
     IParaSwapAugustus augustus,
@@ -181,15 +183,16 @@ contract ParaSwapLiquiditySwapAdapter is BaseParaSwapSellAdapter, ReentrancyGuar
       require(balance >= amountToSwap.add(premium), 'INSUFFICIENT_ATOKEN_BALANCE');
     }
 
-    uint256 amountReceived = _sellOnParaSwap(
-      swapAllBalanceOffset,
-      swapCalldata,
-      augustus,
-      assetToSwapFrom,
-      assetToSwapTo,
-      amountToSwap,
-      minAmountToReceive
-    );
+    uint256 amountReceived =
+      _sellOnParaSwap(
+        swapAllBalanceOffset,
+        swapCalldata,
+        augustus,
+        assetToSwapFrom,
+        assetToSwapTo,
+        amountToSwap,
+        minAmountToReceive
+      );
 
     assetToSwapTo.safeApprove(address(LENDING_POOL), 0);
     assetToSwapTo.safeApprove(address(LENDING_POOL), amountReceived);

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.6.12;
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.8.0;
 
 import {Ownable} from '../dependencies/openzeppelin/contracts/Ownable.sol';
 import {IERC20} from '../dependencies/openzeppelin/contracts/IERC20.sol';
@@ -28,7 +27,7 @@ contract WETHGateway is IWETHGateway, Ownable {
   }
 
   function authorizeLendingPool(address lendingPool) external onlyOwner {
-    WETH.approve(lendingPool, uint256(-1));
+    WETH.approve(lendingPool, type(uint256).max);
   }
 
   /**
@@ -73,9 +72,9 @@ contract WETHGateway is IWETHGateway, Ownable {
   }
 
   /**
-   * @dev repays a borrow on the WETH reserve, for the specified amount (or for the whole amount, if uint256(-1) is specified).
+   * @dev repays a borrow on the WETH reserve, for the specified amount (or for the whole amount, if type(uint256).max is specified).
    * @param lendingPool address of the targeted underlying lending pool
-   * @param amount the amount to repay, or uint256(-1) if the user wants to repay everything
+   * @param amount the amount to repay, or type(uint256).max if the user wants to repay everything
    * @param rateMode the rate mode to repay
    * @param onBehalfOf the address for which msg.sender is repaying
    */

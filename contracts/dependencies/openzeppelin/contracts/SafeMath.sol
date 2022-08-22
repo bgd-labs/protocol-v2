@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.6.12;
+pragma solidity ^0.8.0;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -25,10 +25,12 @@ library SafeMath {
    * - Addition cannot overflow.
    */
   function add(uint256 a, uint256 b) internal pure returns (uint256) {
-    uint256 c = a + b;
-    require(c >= a, 'SafeMath: addition overflow');
+    unchecked {
+      uint256 c = a + b;
+      require(c >= a, 'SafeMath: addition overflow');
 
-    return c;
+      return c;
+    }
   }
 
   /**
@@ -58,10 +60,12 @@ library SafeMath {
     uint256 b,
     string memory errorMessage
   ) internal pure returns (uint256) {
-    require(b <= a, errorMessage);
-    uint256 c = a - b;
+    unchecked {
+      require(b <= a, errorMessage);
+      uint256 c = a - b;
 
-    return c;
+      return c;
+    }
   }
 
   /**
@@ -81,10 +85,12 @@ library SafeMath {
       return 0;
     }
 
-    uint256 c = a * b;
-    require(c / a == b, 'SafeMath: multiplication overflow');
+    unchecked {
+      uint256 c = a * b;
+      require(c / a == b, 'SafeMath: multiplication overflow');
 
-    return c;
+      return c;
+    }
   }
 
   /**
@@ -120,10 +126,12 @@ library SafeMath {
   ) internal pure returns (uint256) {
     // Solidity only automatically asserts when dividing by 0
     require(b > 0, errorMessage);
-    uint256 c = a / b;
-    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+    unchecked {
+      uint256 c = a / b;
+      // assert(a == b * c + a % b); // There is no case in which this doesn't hold
 
-    return c;
+      return c;
+    }
   }
 
   /**
@@ -158,6 +166,6 @@ library SafeMath {
     string memory errorMessage
   ) internal pure returns (uint256) {
     require(b != 0, errorMessage);
-    return a % b;
+    unchecked {return a % b;}
   }
 }

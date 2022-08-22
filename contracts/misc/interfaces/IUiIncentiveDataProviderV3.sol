@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.6.12;
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.8.0;
 
 import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddressesProvider.sol';
 
@@ -38,13 +37,13 @@ interface IUiIncentiveDataProviderV3 {
     UserIncentiveData vTokenIncentivesUserData;
     UserIncentiveData sTokenIncentivesUserData;
   }
-  
+
   struct UserIncentiveData {
     address tokenAddress;
     address incentiveControllerAddress;
     UserRewardInfo[] userRewardsInformation;
   }
-  
+
   struct UserRewardInfo {
     string rewardTokenSymbol;
     address rewardOracleAddress;
@@ -54,7 +53,6 @@ interface IUiIncentiveDataProviderV3 {
     int256 rewardPriceFeed;
     uint8 priceFeedDecimals;
     uint8 rewardTokenDecimals;
-
   }
 
   function getReservesIncentivesData(ILendingPoolAddressesProvider provider)
@@ -72,4 +70,4 @@ interface IUiIncentiveDataProviderV3 {
     external
     view
     returns (AggregatedReserveIncentiveData[] memory, UserReserveIncentiveData[] memory);
-} 
+}
