@@ -45,5 +45,17 @@ library DataTypes {
     uint256 data;
   }
 
+  struct CalculateInterestRatesParams {
+    uint256 unbacked;
+    uint256 liquidityAdded;
+    uint256 liquidityTaken;
+    uint256 totalStableDebt;
+    uint256 totalVariableDebt;
+    uint256 averageStableBorrowRate;
+    uint256 reserveFactor;
+    address reserve;
+    address aToken;
+  }
+
   enum InterestRateMode {NONE, STABLE, VARIABLE}
 }

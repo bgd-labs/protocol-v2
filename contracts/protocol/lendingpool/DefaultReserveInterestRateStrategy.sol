@@ -8,6 +8,7 @@ import {PercentageMath} from '../libraries/math/PercentageMath.sol';
 import {ILendingPoolAddressesProvider} from '../../interfaces/ILendingPoolAddressesProvider.sol';
 import {ILendingRateOracle} from '../../interfaces/ILendingRateOracle.sol';
 import {IERC20} from '../../dependencies/openzeppelin/contracts/IERC20.sol';
+import {DataTypes} from '../libraries/types/DataTypes.sol';
 
 /**
  * @title DefaultReserveInterestRateStrategy contract
@@ -27,7 +28,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
    * @dev this constant represents the utilization rate at which the pool aims to obtain most competitive borrow rates.
    * Expressed in ray
    **/
-  uint256 public immutable OPTIMAL_UTILIZATION_RATE;
+  uint256 public immutable OPTIMAL_USAGE_RATIO;
 
   /**
    * @dev This constant represents the excess utilization rate above the optimal. It's always equal to
@@ -63,7 +64,7 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
     uint256 stableRateSlope1,
     uint256 stableRateSlope2
   ) public {
-    OPTIMAL_UTILIZATION_RATE = optimalUtilizationRate;
+    OPTIMAL_USAGE_RATIO = optimalUtilizationRate;
     EXCESS_UTILIZATION_RATE = WadRayMath.ray().sub(optimalUtilizationRate);
     addressesProvider = provider;
     _baseVariableBorrowRate = baseVariableBorrowRate;
@@ -73,28 +74,54 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
     _stableRateSlope2 = stableRateSlope2;
   }
 
-  function variableRateSlope1() external view returns (uint256) {
+  function getVariableRateSlope1() external view returns (uint256) {
     return _variableRateSlope1;
   }
 
-  function variableRateSlope2() external view returns (uint256) {
+  function getVariableRateSlope2() external view returns (uint256) {
     return _variableRateSlope2;
   }
 
-  function stableRateSlope1() external view returns (uint256) {
+  function getStableRateSlope1() external view returns (uint256) {
     return _stableRateSlope1;
   }
 
-  function stableRateSlope2() external view returns (uint256) {
+  function getStableRateSlope2() external view returns (uint256) {
     return _stableRateSlope2;
   }
 
-  function baseVariableBorrowRate() external view override returns (uint256) {
+  function getBaseVariableBorrowRate() external view override returns (uint256) {
     return _baseVariableBorrowRate;
   }
 
   function getMaxVariableBorrowRate() external view override returns (uint256) {
     return _baseVariableBorrowRate.add(_variableRateSlope1).add(_variableRateSlope2);
+  }
+
+  function calculateInterestRates(DataTypes.CalculateInterestRatesParams calldata params)
+    external
+    view
+    override
+    returns (
+      uint256,
+      uint256,
+      uint256
+    )
+  {
+    uint256 availableLiquidity =
+      IERC20(params.reserve).balanceOf(params.aToken).add(params.liquidityAdded).sub(
+        params.liquidityTaken
+      );
+
+    return
+      calculateInterestRates(
+        params.reserve,
+        availableLiquidity,
+        params.totalStableDebt,
+        params.totalVariableDebt,
+        params.averageStableBorrowRate,
+        params.reserveFactor
+      );
   }
 
   /**
@@ -120,7 +147,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
   )
     external
     view
-    override
     returns (
       uint256,
       uint256,
@@ -172,7 +198,6 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
   )
     public
     view
-    override
     returns (
       uint256,
       uint256,
@@ -193,9 +218,9 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
     vars.currentStableBorrowRate = ILendingRateOracle(addressesProvider.getLendingRateOracle())
       .getMarketBorrowRate(reserve);
 
-    if (vars.utilizationRate > OPTIMAL_UTILIZATION_RATE) {
+    if (vars.utilizationRate > OPTIMAL_USAGE_RATIO) {
       uint256 excessUtilizationRateRatio =
-        vars.utilizationRate.sub(OPTIMAL_UTILIZATION_RATE).rayDiv(EXCESS_UTILIZATION_RATE);
+        vars.utilizationRate.sub(OPTIMAL_USAGE_RATIO).rayDiv(EXCESS_UTILIZATION_RATE);
 
       vars.currentStableBorrowRate = vars.currentStableBorrowRate.add(_stableRateSlope1).add(
         _stableRateSlope2.rayMul(excessUtilizationRateRatio)
@@ -206,10 +231,10 @@ contract DefaultReserveInterestRateStrategy is IReserveInterestRateStrategy {
       );
     } else {
       vars.currentStableBorrowRate = vars.currentStableBorrowRate.add(
-        _stableRateSlope1.rayMul(vars.utilizationRate.rayDiv(OPTIMAL_UTILIZATION_RATE))
+        _stableRateSlope1.rayMul(vars.utilizationRate.rayDiv(OPTIMAL_USAGE_RATIO))
       );
       vars.currentVariableBorrowRate = _baseVariableBorrowRate.add(
-        vars.utilizationRate.rayMul(_variableRateSlope1).rayDiv(OPTIMAL_UTILIZATION_RATE)
+        vars.utilizationRate.rayMul(_variableRateSlope1).rayDiv(OPTIMAL_USAGE_RATIO)
       );
     }
 

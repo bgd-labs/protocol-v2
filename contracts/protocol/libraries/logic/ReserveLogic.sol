@@ -221,14 +221,17 @@ library ReserveLogic {
       vars.newStableRate,
       vars.newVariableRate
     ) = IReserveInterestRateStrategy(reserve.interestRateStrategyAddress).calculateInterestRates(
-      reserveAddress,
-      aTokenAddress,
-      liquidityAdded,
-      liquidityTaken,
-      vars.totalStableDebt,
-      vars.totalVariableDebt,
-      vars.avgStableRate,
-      reserve.configuration.getReserveFactor()
+      DataTypes.CalculateInterestRatesParams({
+        reserve: reserveAddress,
+        aToken: aTokenAddress,
+        unbacked: 0,
+        liquidityAdded: liquidityAdded,
+        liquidityTaken: liquidityTaken,
+        totalStableDebt: vars.totalStableDebt,
+        totalVariableDebt: vars.totalVariableDebt,
+        averageStableBorrowRate: vars.avgStableRate,
+        reserveFactor: reserve.configuration.getReserveFactor()
+      })
     );
     require(vars.newLiquidityRate <= type(uint128).max, Errors.RL_LIQUIDITY_RATE_OVERFLOW);
     require(vars.newStableRate <= type(uint128).max, Errors.RL_STABLE_BORROW_RATE_OVERFLOW);

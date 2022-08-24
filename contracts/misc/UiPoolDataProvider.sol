@@ -43,10 +43,10 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     )
   {
     return (
-      interestRateStrategy.variableRateSlope1(),
-      interestRateStrategy.variableRateSlope2(),
-      interestRateStrategy.stableRateSlope1(),
-      interestRateStrategy.stableRateSlope2()
+      interestRateStrategy.getVariableRateSlope1(),
+      interestRateStrategy.getVariableRateSlope2(),
+      interestRateStrategy.getStableRateSlope1(),
+      interestRateStrategy.getStableRateSlope2()
     );
   }
 
