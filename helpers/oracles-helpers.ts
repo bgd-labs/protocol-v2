@@ -72,12 +72,14 @@ export const setInitialAssetPricesInOracle = async (
   priceOracleInstance: PriceOracle
 ) => {
   for (const [assetSymbol, price] of Object.entries(prices) as [string, string][]) {
-    const assetAddressIndex = Object.keys(assetsAddresses).findIndex(
-      (value) => value === assetSymbol
-    );
-    const [, assetAddress] = (Object.entries(assetsAddresses) as [string, string][])[
-      assetAddressIndex
-    ];
+    const assetAddress = assetsAddresses[assetSymbol];
+    if (!assetAddress) {
+      console.error(`address for ${assetSymbol} is not set`);
+    }
+    if (!price) {
+      console.error(`price for ${assetSymbol} is not set`);
+    }
+
     await waitForTx(await priceOracleInstance.setAssetPrice(assetAddress, price));
   }
 };
