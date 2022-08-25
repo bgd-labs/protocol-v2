@@ -94,19 +94,6 @@ export const getEmergencyAdmin = async (config: IBaseConfiguration): Promise<tEt
   return addressList[addressIndex];
 };
 
-export const getProofOfReserveAdmin = async (
-  config: IBaseConfiguration
-): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
-  const targetAddress = getParamPerNetwork(config.ProofOfReserveAdmin, <eNetwork>currentNetwork);
-  if (targetAddress) {
-    return targetAddress;
-  }
-  const addressList = await getEthersSignersAddresses();
-  const addressIndex = config.ProofOfReserveAdminIndex;
-  return addressList[addressIndex];
-};
-
 export const getTreasuryAddress = async (config: IBaseConfiguration): Promise<tEthereumAddress> => {
   const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
   return getParamPerNetwork(config.ReserveFactorTreasuryAddress, <eNetwork>currentNetwork);

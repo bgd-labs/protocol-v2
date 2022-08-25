@@ -49,7 +49,7 @@ contract LendingPoolConfigurator is VersionedInitializable, ILendingPoolConfigur
   modifier onlyPoolOrProofOfReserveAdmin {
     require(
       addressesProvider.getPoolAdmin() == msg.sender ||
-        addressesProvider.getProofOfReserveAdmin() == msg.sender,
+        addressesProvider.getAddress('PROOF_OF_RESERVE_ADMIN') == msg.sender,
       Errors.LPC_CALLER_NOT_POOL_OR_PROOF_OF_RESERVE_ADMIN
     );
     _;

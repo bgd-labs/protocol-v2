@@ -518,8 +518,6 @@ export interface IBaseConfiguration {
   PoolAdminIndex: number;
   EmergencyAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   EmergencyAdminIndex: number;
-  ProofOfReserveAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
-  ProofOfReserveAdminIndex: number;
   ATokenDomainSeparator: iParamsPerNetwork<string>;
   WETH: iParamsPerNetwork<tEthereumAddress>;
   WrappedNativeToken: iParamsPerNetwork<tEthereumAddress>;

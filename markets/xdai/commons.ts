@@ -72,10 +72,6 @@ export const CommonsConfig: ICommonConfiguration = {
     [eXDaiNetwork.xdai]: undefined,
   },
   EmergencyAdminIndex: 1,
-  ProofOfReserveAdmin: {
-    [eXDaiNetwork.xdai]: undefined,
-  },
-  ProofOfReserveAdminIndex: 2,
   ProviderRegistry: {
     [eXDaiNetwork.xdai]: '',
   },

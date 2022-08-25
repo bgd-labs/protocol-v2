@@ -3,6 +3,8 @@ import { APPROVAL_AMOUNT_LENDING_POOL, RAY } from '../../helpers/constants';
 import { convertToCurrencyDecimals } from '../../helpers/contracts-helpers';
 import { ProtocolErrors } from '../../helpers/types';
 import { strategyWETH } from '../../markets/aave/reservesConfigs';
+import { waitForTx } from '../../helpers/misc-utils';
+import { utils } from 'ethers';
 
 const { expect } = require('chai');
 
@@ -155,10 +157,20 @@ makeSuite('LendingPoolConfigurator', (testEnv: TestEnv) => {
     expect(reserveFactor).to.be.equal(strategyWETH.reserveFactor);
   });
 
-  it('Deactivates the ETH reserve for borrowing as ProofOfReserveAdmin', async () => {
-    const { configurator, helpersContract, aave, users } = testEnv;
+  it('Deactivates the AAVE reserve for borrowing as ProofOfReserveAdmin', async () => {
+    const { addressesProvider, configurator, helpersContract, aave, deployer, users } = testEnv;
+
+    const proofOfReserveAdminId = utils.formatBytes32String('PROOF_OF_RESERVE_ADMIN');
+    await addressesProvider
+      .connect(deployer.signer)
+      .setAddress(proofOfReserveAdminId, users[2].address);
+
     await configurator.connect(users[2].signer).disableBorrowingOnReserve(aave.address);
     const { borrowingEnabled } = await helpersContract.getReserveConfigurationData(aave.address);
+
+    await addressesProvider
+      .connect(deployer.signer)
+      .setAddress(proofOfReserveAdminId, deployer.address);
 
     expect(borrowingEnabled).to.be.equal(false);
   });
@@ -299,12 +311,24 @@ makeSuite('LendingPoolConfigurator', (testEnv: TestEnv) => {
     expect(reserveFactor).to.be.equal(strategyWETH.reserveFactor);
   });
 
-  it('Disable stable borrow rate on the ETH reserve as ProofOfReserveAdmin', async () => {
-    const { configurator, helpersContract, weth, users } = testEnv;
-    await configurator.connect(users[2].signer).disableReserveStableRate(weth.address);
-    const { borrowingEnabled } = await helpersContract.getReserveConfigurationData(weth.address);
+  it('Disable stable borrow rate on the AAVE reserve as ProofOfReserveAdmin', async () => {
+    const { addressesProvider, configurator, helpersContract, aave, deployer, users } = testEnv;
 
-    expect(borrowingEnabled).to.be.equal(true);
+    const proofOfReserveAdminId = utils.formatBytes32String('PROOF_OF_RESERVE_ADMIN');
+    await addressesProvider
+      .connect(deployer.signer)
+      .setAddress(proofOfReserveAdminId, users[2].address);
+
+    await configurator.connect(users[2].signer).disableReserveStableRate(aave.address);
+    const { stableBorrowRateEnabled } = await helpersContract.getReserveConfigurationData(
+      aave.address
+    );
+
+    await addressesProvider
+      .connect(deployer.signer)
+      .setAddress(proofOfReserveAdminId, deployer.address);
+
+    expect(stableBorrowRateEnabled).to.be.equal(false);
   });
 
   it('Enables stable borrow rate on the ETH reserve', async () => {
