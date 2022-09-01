@@ -282,8 +282,6 @@ contract LendingPool is VersionedInitializable, ILendingPool, LendingPoolStorage
 
     IERC20(asset).safeTransferFrom(msg.sender, aToken, paybackAmount);
 
-    IAToken(aToken).handleRepayment(msg.sender, paybackAmount);
-
     emit Repay(asset, onBehalfOf, msg.sender, paybackAmount);
 
     return paybackAmount;
