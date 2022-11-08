@@ -56,6 +56,7 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eAvalancheNetwork.avalanche]: 'https://api.avax.network/ext/bc/C/rpc',
   [eAvalancheNetwork.fuji]: 'https://api.avax-test.network/ext/bc/C/rpc',
   [eEthereumNetwork.goerli]: `https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_KEY}`,
+  [eEthereumNetwork.condrieu]: `	https://rpc.condrieu.ethdevops.io`
 };
 
 export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
@@ -72,6 +73,7 @@ export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
   [eAvalancheNetwork.avalanche]: 225 * GWEI,
   [eAvalancheNetwork.fuji]: 85 * GWEI,
   [eEthereumNetwork.goerli]: 2 * GWEI,
+  [eEthereumNetwork.condrieu]: 2 * GWEI,
 };
 
 export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
@@ -88,4 +90,5 @@ export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
   [eAvalancheNetwork.avalanche]: undefined,
   [eAvalancheNetwork.fuji]: undefined,
   [eEthereumNetwork.goerli]: undefined,
+  [eEthereumNetwork.condrieu]: undefined,
 };
