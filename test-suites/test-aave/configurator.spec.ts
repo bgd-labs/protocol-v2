@@ -88,6 +88,20 @@ makeSuite('LendingPoolConfigurator', (testEnv: TestEnv) => {
     expect(reserveFactor).to.be.equal(strategyWETH.reserveFactor);
   });
 
+  it('Freezes the AAVE reserve as ProofOfReserveAdmin', async () => {
+    const { addressesProvider, configurator, helpersContract, aave, deployer, users } = testEnv;
+
+    const proofOfReserveAdminId = utils.formatBytes32String('PROOF_OF_RESERVE_ADMIN');
+    await addressesProvider
+      .connect(deployer.signer)
+      .setAddress(proofOfReserveAdminId, users[2].address);
+
+    await configurator.connect(users[2].signer).freezeReserve(aave.address);
+    const { isFrozen } = await helpersContract.getReserveConfigurationData(aave.address);
+
+    expect(isFrozen).to.be.equal(true);
+  });
+
   it('Unfreezes the ETH reserve', async () => {
     const { configurator, helpersContract, weth } = testEnv;
     await configurator.unfreezeReserve(weth.address);
@@ -115,12 +129,12 @@ makeSuite('LendingPoolConfigurator', (testEnv: TestEnv) => {
     expect(reserveFactor).to.be.equal(strategyWETH.reserveFactor);
   });
 
-  it('Check the onlyAaveAdmin on freezeReserve ', async () => {
+  it('Check the onlyAaveOrProofOfReserveAdmin on freezeReserve ', async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).freezeReserve(weth.address),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+      configurator.connect(users[3].signer).freezeReserve(weth.address),
+      LPC_CALLER_NOT_POOL_OR_PROOF_OF_RESERVE_ADMIN
+    ).to.be.revertedWith(LPC_CALLER_NOT_POOL_OR_PROOF_OF_RESERVE_ADMIN);
   });
 
   it('Check the onlyAaveAdmin on unfreezeReserve ', async () => {
@@ -167,10 +181,6 @@ makeSuite('LendingPoolConfigurator', (testEnv: TestEnv) => {
 
     await configurator.connect(users[2].signer).disableBorrowingOnReserve(aave.address);
     const { borrowingEnabled } = await helpersContract.getReserveConfigurationData(aave.address);
-
-    await addressesProvider
-      .connect(deployer.signer)
-      .setAddress(proofOfReserveAdminId, deployer.address);
 
     expect(borrowingEnabled).to.be.equal(false);
   });
@@ -323,10 +333,6 @@ makeSuite('LendingPoolConfigurator', (testEnv: TestEnv) => {
     const { stableBorrowRateEnabled } = await helpersContract.getReserveConfigurationData(
       aave.address
     );
-
-    await addressesProvider
-      .connect(deployer.signer)
-      .setAddress(proofOfReserveAdminId, deployer.address);
 
     expect(stableBorrowRateEnabled).to.be.equal(false);
   });
